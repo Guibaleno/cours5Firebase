@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.a533.cours5.Notification.NotificationService;
+import com.example.a533.cours5.Notification.model.ImportantMessageModel;
 import com.example.a533.cours5.Notification.model.MessageModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -76,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessage()
     {
         EditText editText = findViewById(R.id.messageContent);
-        MessageModel messageModel = new MessageModel(editText.getText().toString(), auth.getCurrentUser().getEmail());
-        database.collection("Notification").add(messageModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+        ImportantMessageModel messageModel = new ImportantMessageModel(editText.getText().toString(), auth.getCurrentUser().getEmail());
+        database.collection("NotificationImportante").add(messageModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 Toast.makeText(getApplicationContext(), "messageSent,", Toast.LENGTH_SHORT).show();

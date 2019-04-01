@@ -10,15 +10,21 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.widget.Switch;
 
 import com.example.a533.cours5.MainActivity;
+import com.example.a533.cours5.Notification.model.ImportantMessageModel;
 import com.example.a533.cours5.Notification.model.MessageModel;
 import com.example.a533.cours5.R;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import static android.icu.text.UnicodeSet.CASE;
 
 public class NotificationService extends Service{
     public static final String CHANNEL_ID = "NotificationService";
@@ -26,11 +32,13 @@ public class NotificationService extends Service{
     FirebaseFirestore database;
     int idNotification = 2;
 
+
     @Override
     public void onCreate() {
         createNotificationChannel();
         database = FirebaseFirestore.getInstance();
-        listenForNotificationMessage();
+        //listenForNotificationMessage();
+        listenForImportantNotificationMessage();
         super.onCreate();
     }
 
@@ -91,12 +99,43 @@ public class NotificationService extends Service{
         });
     }
 
+    private void listenForImportantNotificationMessage()
+    {
+        database.collection("NotificationImportante").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                QueryDocumentSnapshot documentMessage;
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                    switch (dc.getType()) {
+                        case ADDED:
+                            ImportantMessageModel messageModel = dc.getDocument().toObject(ImportantMessageModel.class);
+                            sendImportantNotificationForMessage(messageModel);
+                            break;
+                        case MODIFIED:
+                            break;
+                        case REMOVED:
+                            Log.d("AHHHHH", "Removed city: " + dc.getDocument().getData());
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
     private void sendNotificationForMessage(MessageModel messageModel)
     {
         Notification notification = NotificationCreator.createNotificationorMessage(this,messageModel);
         notificationManager.notify(idNotification, notification);
         idNotification ++;
     }
+
+    private void sendImportantNotificationForMessage(ImportantMessageModel messageModel)
+    {
+        Notification notification = NotificationCreator.createImportantNotificationorMessage(this,messageModel);
+        notificationManager.notify(idNotification, notification);
+        idNotification ++;
+    }
+
 
     private void createNotificationChannelMessage()
     {
