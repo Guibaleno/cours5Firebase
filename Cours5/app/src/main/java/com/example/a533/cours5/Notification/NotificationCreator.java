@@ -29,14 +29,14 @@ public class NotificationCreator {
     {
         Intent snoozeIntent = new Intent(context, MainActivity.class);
         PendingIntent snoozePendingIntent =
-                PendingIntent.getBroadcast(context, 0, snoozeIntent, 0);
+                PendingIntent.getActivity(context, 0, snoozeIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "42")
                 .setSmallIcon(R.drawable.logo)
                 .setContentTitle(messageModel.getSender())
                 .setContentText(messageModel.getMessage())
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .addAction(R.drawable.logo, "Snooze",
+                .addAction(R.drawable.logo, "Marqué comme lu",
                 snoozePendingIntent);
         return  builder.build();
     }
